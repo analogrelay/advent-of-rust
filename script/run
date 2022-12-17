@@ -1,0 +1,46 @@
+#!/bin/bash
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "${SOURCE_DIR}/.." && pwd )"
+
+usage() {
+    echo "Usage: $0 <year> <day>"
+    echo "Example: $0 2015 1"
+}
+
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    shift
+    case "$key" in
+        *)
+            if [ "$YEAR" == "" ]; then
+                YEAR="$key"
+            elif [ "$DAY" == "" ]; then
+                DAY="$key"
+            else
+                echo "Unknown argument: $key"
+                exit 1
+            fi
+            ;;
+    esac
+done
+
+if [ -z "$YEAR" ]; then
+    usage
+    exit 1
+fi
+
+if [ -z "$DAY" ]; then
+    usage
+    exit 1
+fi
+
+echo "Running day $DAY of year $YEAR ..."
+
+CRATE_DIR="${REPO_ROOT}/crates/aoc$YEAR"
+if [ ! -d "$CRATE_DIR" ]; then
+    echo "Year crate does not exist: $CRATE_DIR"
+    exit 1
+fi
+
+cd "$CRATE_DIR"
+cargo run -- $DAY

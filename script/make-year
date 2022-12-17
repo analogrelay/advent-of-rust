@@ -1,0 +1,64 @@
+#!/bin/bash
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "${SOURCE_DIR}/.." && pwd )"
+
+usage() {
+    echo "Usage: $0 <year>"
+}
+
+year="$1"
+
+if [ -z "$year" ]; then
+    usage
+    exit 1
+fi
+
+echo "Creating year $year ..."
+
+CRATE_DIR="${REPO_ROOT}/crates/aoc$year"
+if [ -d "$CRATE_DIR" ]; then
+    echo "Year crate already exists: $CRATE_DIR"
+    exit 1
+fi
+
+cd "$REPO_ROOT/crates"
+
+cargo new --vcs none --bin "aoc$year"
+cd "aoc$year"
+cargo add --path ../adventlib
+
+mkdir "data"
+mkdir "src/days"
+cat > "src/days/mod.rs" <<EOF
+$(for i in {1..25}; do echo "mod day$i;"; done)
+
+pub fn run_day(day: usize, args: &[String]) {
+    match day {
+$(for i in {1..25}; do echo "        $i => day$i::run(args),"; done)
+        _ => panic!("Unknown day: {}", day),
+    }
+}
+EOF
+
+cat > "src/main.rs" <<EOF
+mod days;
+
+fn main() {
+    adventlib::advent_main(&days::run_day);
+}
+EOF
+
+for i in {1..25}; do
+    mkdir "data/day$i"
+    cat > "src/days/day$i.rs" <<EOF
+use adventlib::prelude::*;
+
+const DAY: usize = $i;
+
+pub fn run(args: &[String]) {
+    advent_todo(DAY, args);
+}
+EOF
+    touch "data/day$i/input.txt"
+    touch "data/day$i/test.txt"
+done
