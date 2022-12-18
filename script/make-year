@@ -26,13 +26,14 @@ cd "$REPO_ROOT/crates"
 cargo new --vcs none --bin "aoc$year"
 cd "aoc$year"
 cargo add --path ../adventlib
+cargo add anyhow
 
 mkdir "data"
 mkdir "src/days"
 cat > "src/days/mod.rs" <<EOF
 $(for i in {1..25}; do echo "mod day$i;"; done)
 
-pub fn run_day(day: usize, args: &[String]) {
+pub fn run_day(day: usize, args: &[String]) -> Result<(), anyhow::Error> {
     match day {
 $(for i in {1..25}; do echo "        $i => day$i::run(args),"; done)
         _ => panic!("Unknown day: {}", day),
@@ -55,8 +56,8 @@ use adventlib::prelude::*;
 
 const DAY: usize = $i;
 
-pub fn run(args: &[String]) {
-    advent_todo(DAY, args);
+pub fn run(args: &[String]) -> Result<(), anyhow::Error> {
+    Ok(advent_todo(DAY, args))
 }
 EOF
     touch "data/day$i/input.txt"

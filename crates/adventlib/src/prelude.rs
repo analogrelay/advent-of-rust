@@ -1,6 +1,13 @@
-use std::{path, io, fs, env};
+use std::{path, io::{self, Read}, fs, env};
 
-pub fn advent_todo(day: usize, _args: &[String]) {
+pub fn read_input_lines(day: usize, file_name: &str) -> io::Result<Vec<String>> {
+    let mut file = open_day_file(day, file_name)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    Ok(contents.lines().map(|s| s.to_string()).collect())
+}
+
+pub fn advent_todo(day: usize, _args: &[String]) -> () {
     // Mostly just here to make unused-imports warnings go away
     todo!("Implement day {}", day);
 }
